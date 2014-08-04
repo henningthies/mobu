@@ -60,11 +60,15 @@ module Mobu
       session[:prefer_full_site]
     end
 
+    def force_mobile_site
+      session[:prefer_mobile_site]
+    end
+
     def mobile_request?
       if defined?(@mobile_request)
         @mobile_request
       else
-        @mobile_request = !force_full_site && !tablet_request? && mobile_browser?
+        @mobile_request = force_mobile_site || !force_full_site && !tablet_request? && mobile_browser?
       end
     end
 
@@ -87,9 +91,11 @@ module Mobu
     def check_mobile_site
       case params.delete(:prefer)
       when "f"
+        session.delete :prefer_mobile_site
         session[:prefer_full_site] = 1
       when "m"
         session.delete :prefer_full_site
+        session[:prefer_mobile_site] = 1
       end
 
       if mobile_request?
